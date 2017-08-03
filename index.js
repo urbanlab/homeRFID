@@ -1,19 +1,15 @@
 'use strict';
 
-
 var express = require('express'),
     cors = require('cors')
     pcsc = require('pcsclite');
-
 
 var app = express(),
     pcsc = pcsc(),
     lastRead = false;
 
-
 // Enabling CORS for all routes.
 app.use(cors());
-
 
 // API
 app.get('/', function (req, res) {
@@ -47,11 +43,11 @@ pcsc.on('reader', function(reader) {
         // Check changes.
         var changes = this.state ^ status.state;
         if (changes) {
-            
+
             // Card removed.
             if ((changes & this.SCARD_STATE_EMPTY) && (status.state & this.SCARD_STATE_EMPTY)) {
                 console.log('Status(', reader.name, '): Card removed');
-                
+
                 reader.disconnect(reader.SCARD_LEAVE_CARD, function(err) {
                     if (err) {
                         console.log('Error(', reader.name, '):', err);
@@ -66,7 +62,7 @@ pcsc.on('reader', function(reader) {
             // Card inserted.
             else if ((changes & this.SCARD_STATE_PRESENT) && (status.state & this.SCARD_STATE_PRESENT)) {
                 console.log('Status(', reader.name, '): Card inserted');
-                
+
                 reader.connect({ share_mode : this.SCARD_SHARE_SHARED }, function(err, protocol) {
                     if (err) {
                         console.log('Error(', reader.name, '):', err);
@@ -74,7 +70,7 @@ pcsc.on('reader', function(reader) {
                     else {
                         console.log('Protocol(', reader.name, '):', protocol);
 
-                        /* 
+                        /*
                             Read card UID: [0xFF, 0xCA, 0x00, 0x00, 0x00]
 
                             UID is specified in the ISO 14443 T=CL transport protocol while APDU's are specified in the ISO 7816 application layer protocol.
@@ -84,10 +80,11 @@ pcsc.on('reader', function(reader) {
                             P1 = 0x00
                             P2 = 0x00
                             Le = 0x00 (return full length: ISO14443A single 4 bytes, double 7 bytes, triple 10 bytes, for ISO14443B 4 bytes PUPI, for 15693 8 bytes UID)
-                            
+
                             Expected response: Data+SW1SW2
-                        */                        
-                        var message = new Buffer([0xFF, 0xCA, 0x00, 0x00, 0x00]);
+                        */
+                        // var message = new Buffer([0xFF, 0xCA, 0x00, 0x00, 0x00]);
+                        var message = new Buffer([0xFF, 0x00, 0x52, 0x00, 0x00]);
 
                         reader.transmit(message, 40, protocol, function(err, data) {
                             if (err) {
@@ -99,7 +96,7 @@ pcsc.on('reader', function(reader) {
                                     Set noAssert to true to skip validation of value and offset. Defaults to false.
                                 */
                                 lastRead = data.readUIntBE(0, 6, true).toString(16);
-                                
+
                                 console.log('Status(', reader.name, '): Read:', data, ' toString:', lastRead);
                             }
                         });
