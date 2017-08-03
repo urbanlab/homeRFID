@@ -83,8 +83,8 @@ pcsc.on('reader', function(reader) {
 
                             Expected response: Data+SW1SW2
                         */
-                        // var message = new Buffer([0xFF, 0xCA, 0x00, 0x00, 0x00]);
-                        var message = new Buffer([0xFF, 0x00, 0x52, 0x00, 0x00]);
+                         var message = new Buffer([0xFF, 0xCA, 0x00, 0x00, 0x00]);
+                        // var message = new Buffer([0xFF, 0x00, 0x52, 0x00, 0x00]);
 
                         reader.transmit(message, 40, protocol, function(err, data) {
                             if (err) {
