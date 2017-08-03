@@ -44,6 +44,9 @@ pcsc.on('reader', function(reader) {
         var changes = this.state ^ status.state;
         if (changes) {
 
+          console.log('>>> CHANGES', changes);
+          console.log('>>> THIS', this);
+
             // Card removed.
             if ((changes & this.SCARD_STATE_EMPTY) && (status.state & this.SCARD_STATE_EMPTY)) {
                 console.log('Status(', reader.name, '): Card removed');
